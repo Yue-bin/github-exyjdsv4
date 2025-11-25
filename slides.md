@@ -26,6 +26,14 @@ fonts:
 
 ---
 
+# 免责声明
+
+本演示大部分内容均为昨天夜观星象所得，如有不准确之处，欢迎指正。
+
+<img src="/images/gemini.png" alt="gemini" style="width: 40%;margin: auto" />
+
+---
+
 # MVVM 是什么？
 
 <img src="/images/wtf.png" alt="wtf" style="margin: auto" />
@@ -48,10 +56,63 @@ transition: fade
 
 ## UI 代码耦合问题
 
-- 传统 UI 开发中，UI 逻辑与业务逻辑紧密耦合，难以维护和测试。
+传统代码隐藏模式中，UI与业务逻辑紧密耦合所导致的维护困难、测试复杂、修改成本高昂等问题。
+
+MVVM通过实现关注点分离（解耦UI、UI逻辑和业务逻辑）带来以下主要优势：
+
+1. 提高可测试性：ViewModel独立于UI，极易进行单元测试。
+2. 增强可维护性与演进性：代码结构清晰，修改影响范围小。
+3. 促进开发者与设计师协作：允许并行工作，提升开发效率。
+4. 天然适配XAML平台：充分利用XAML的数据绑定机制，简化开发。
 
 ---
-layout: center
+
+# 为什么选择 MVVM？
+
+## UI 代码耦合问题
+
+```csharp {all}{maxHeight:'350px'}
+// 所有的逻辑都在这个按钮点击事件里，一坨大份
+private void CalculateSum_Click(object sender, RoutedEventArgs e)
+{
+    // 1. UI交互逻辑：直接从文本框获取输入
+    string inputA = txtNumberA.Text;
+    string inputB = txtNumberB.Text;
+    // 2. 数据验证逻辑：检查输入是否合法
+    double numA, numB;
+    bool isValidA = double.TryParse(inputA, out numA);
+    bool isValidB = double.TryParse(inputB, out numB);
+    if (!isValidA)
+    {
+        MessageBox.Show("请为'数字 A'输入有效的数字！", "输入错误", MessageBoxButton.OK, MessageBoxImage.Error);
+        txtNumberA.Background = Brushes.LightCoral; // UI反馈
+        return;
+    }
+    else
+    {
+        txtNumberA.Background = Brushes.White; // 恢复 UI 反馈
+    }
+    if (!isValidB)
+    {
+        MessageBox.Show("请为'数字 B'输入有效的数字！", "输入错误", MessageBoxButton.OK, MessageBoxImage.Error);
+        txtNumberB.Background = Brushes.LightCoral; // UI反馈
+        return;
+    }
+    else
+    {
+        txtNumberB.Background = Brushes.White; // 恢复 UI 反馈
+    }
+    // 3. 核心业务逻辑：执行计算
+    double sum = numA + numB;
+    // 4. UI呈现逻辑：直接更新显示结果的Label
+    lblResult.Content = $"总和: {sum:F2}";
+    // 5. 状态管理逻辑：假设我们可能需要跟踪一些内部状态
+    // int clickCount++; // 每次点击加1，如果需要的话
+    // 6. 假设这里还可能混合了一些数据访问代码 (为简洁省略，但可以想象)
+    // SaveCalculationToDatabase(numA, numB, sum);
+}
+```
+
 ---
 
 # 在这之前
@@ -108,7 +169,17 @@ layout: center
 - 反向
   - Data Binding
   - ICommand
-<img src="/images/mvvm.png" alt="mvvm" style="width: 50%;margin: auto" />
+<img src="/images/mvvm.png" alt="mvvm" style="width: 75%;margin: auto" />
+
+---
+
+# 怎么做？
+
+## 干嘛...
+
+~~这图真帅吧~~
+
+<img src="/images/databinding.png" alt="databinding" style="width: 50%;margin: auto" />
 
 ---
 
@@ -189,60 +260,43 @@ public class UserViewModel : ObservableObject
 ---
 
 # 缺点和错误实践
-## 大坨 ViewModel
+## 繁重与冗余与噪声
 
-- **问题**: ViewModel 过于庞大，包含过多业务逻辑，导致：
-  - **难以维护**: 单一职责原则被打破，修改一处可能影响多处。
-  - **难以测试**: 复杂的 ViewModel 难以编写单元测试。
-  - **性能问题**: 过多的属性和逻辑可能导致性能下降。
+- **繁重：** 引入过多抽象层，导致架构复杂，增加认知负担。
+- **冗余：** 产生大量样板代码（如数据映射、INotifyPropertyChanged通知），导致逻辑重复。
+- **噪声：** 复杂的绑定语法和额外代码增加了代码噪声，影响可读性，在小型或简单场景下反而成为效率瓶颈。
 
 ---
-transition: fade
----
 
-# 缺点和错误实践：大坨 ViewModel
-## 示例：一个“大坨”的 ViewModel
-
-```csharp {all}
-public class GodViewModel : ReactiveObject
+# 缺点和错误实践
+## 我的风味 MVVM
+```csharp {all|1-3}
+public MainWindowViewModel(MainWindow mainWindow)
 {
-    // 用户管理相关
-    public ObservableCollection<User> Users { get; }
-    public ReactiveCommand<Unit, Unit> LoadUsersCommand { get; }
-    public ReactiveCommand<User, Unit> AddUserCommand { get; }
-
-    // 产品管理相关
-    public ObservableCollection<Product> Products { get; }
-    public ReactiveCommand<Unit, Unit> LoadProductsCommand { get; }
-    public ReactiveCommand<Product, Unit> UpdateProductCommand { get; }
-
-    // 订单管理相关
-    public ObservableCollection<Order> Orders { get; }
-    public ReactiveCommand<Unit, Unit> LoadOrdersCommand { get; }
-    public ReactiveCommand<Order, Unit> ProcessOrderCommand { get; }
-
-    // ... 更多模块的逻辑
+    _mainWindow = mainWindow;
+    EditorTabs = [
+        new EditorTabViewModel { EditorTitle = "Untitled-1" }
+    ];
+    SelectedTab = EditorTabs[0];
+    Messenger.Register<CloseTabMessage>(this, (recipient, message) =>
+    {
+        CloseTab(message.Tab);
+        message.Reply(true); // 确认消息已处理
+    });
+    Messenger.Register<AddTabMessage>(this, (recipient, message) =>
+    {
+        AddNewTab();
+        message.Reply(true); // 确认消息已处理
+    });
 }
 ```
 
 ---
-layout: center
----
 
-# 缺点和错误实践：我的风味 MVVM
+# 参考文献
 
-<!-- 留空，待自行添加 -->
-
----
-
-# 图片引用建议
-
-- **本地图片**: 将图片文件放在项目根目录下的 `public` 文件夹中（例如 `public/images/my_image.png`）。
-- **引用方式**: 在 Markdown 中使用相对路径引用，例如 `![描述](/images/my_image.png)`。
-- **Slidev 自动处理**: Slidev 会在构建时将 `public` 文件夹的内容复制到最终的输出目录，确保图片在部署后也能正常访问。
-
-```markdown
-![MVVM 架构图](/images/mvvm_architecture.png)
-```
-
----
+- [The MVVM Pattern - Microsoft](https://learn.microsoft.com/en-us/previous-versions/msp-n-p/hh848246(v=pandp.10))
+- [MVVM 模式 - Avalonia](https://docs.avaloniaui.net/zh-Hans/docs/concepts/the-mvvm-pattern/)
+- [MVVM 简介 - CommunityToolkit.Mvvm](https://learn.microsoft.com/zh-cn/dotnet/communitytoolkit/mvvm/)
+- 个人经验以及偏见
+- Gemini和豆包
