@@ -8,6 +8,7 @@ class: text-center
 transition: slide-left
 mdc: true
 presenter: false # 禁用工具栏
+lineNumbers: true
 colorSchema: 'light'
 themeConfig:
   primary: '#523FC5'
@@ -21,12 +22,16 @@ fonts:
 
 # MVVM 主题展示
 
-基于 Avalonia 项目的 MVVM 实践
+副标题不知道写啥你就当没看到好了
 
-<div @click="$slidev.nav.next" class="mt-12 py-1" hover:bg="white op-10">
-  点击进入 <carbon:arrow-right />
-</div>
+---
 
+# MVVM 是什么？
+
+<img src="/images/wtf.png" alt="wtf" style="margin: auto" />
+
+---
+transition: fade
 ---
 
 # MVVM 是什么？
@@ -34,6 +39,8 @@ fonts:
 - **Model (模型)**: 业务逻辑和数据。
 - **View (视图)**: UI 界面，负责展示。
 - **ViewModel (视图模型)**: 连接 View 和 Model，处理 View 的逻辑和数据绑定。
+
+<img src="/images/mvvm.png" alt="mvvm" style="width: 150%;margin: auto" />
 
 ---
 
@@ -47,7 +54,17 @@ fonts:
 layout: center
 ---
 
-# 历史演进：野人时代
+# 在这之前
+
+野生ui有野人帮忙解耦
+
+<img src="/images/oldcoder.png" alt="oldcoder" style="width: 50%;margin: auto" />
+
+---
+layout: center
+---
+
+# 在这之前
 
 <!-- 留空，待自行添加 -->
 
@@ -55,25 +72,17 @@ layout: center
 layout: center
 ---
 
-# 历史演进：MVC
-
-<!-- 留空，待自行添加 -->
-
----
-layout: center
----
-
-# 历史演进：MVP
+# 在这之前
 
 <!-- 留空，待自行添加 -->
 
 ---
 
-# MVVM 怎么做？
+# 怎么做？
 
 ## 古法手写：INotifyPropertyChanged
 
-```csharp {all|5|7-10}
+```csharp {*}{maxHeight:'350px'}
 // Model
 public class User
 {
@@ -102,11 +111,13 @@ public class UserViewModel : INotifyPropertyChanged
 
 ---
 
-# MVVM 怎么做？
+# 怎么做？
 
 ## ReactiveUI
 
-```csharp {all|5|7-10}
+用过一小段时间但是感觉不如...
+
+```csharp {all}
 // Model
 public class User
 {
@@ -128,9 +139,11 @@ public class UserViewModel : ReactiveObject
 
 ---
 
-# MVVM 怎么做？
+# 怎么做？
 
 ## CommunityToolkit.Mvvm
+
+`CommunityToolkit.Mvvm`为什么是神
 
 <!-- 留空，待自行添加 -->
 
@@ -149,7 +162,7 @@ layout: center
 
 ## 示例：一个“大坨”的 ViewModel
 
-```csharp {all|5-10}
+```csharp {all}
 public class GodViewModel : ReactiveObject
 {
     // 用户管理相关
